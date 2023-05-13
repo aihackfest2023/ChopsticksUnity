@@ -35,8 +35,6 @@ public class Referee : MonoBehaviour
     private int gameIteration = 0;
 
     private int numTurnsTaken = 0;
-    private int prevTurnsTakenCheckpoint = 0;
-
     public bool player1Ready = true;
     public bool player2Ready = true;
 
@@ -63,7 +61,7 @@ public class Referee : MonoBehaviour
 
         if (!(player1 == null || player2 == null))
         {
-            Debug.Log("Players found");
+            // Debug.Log("Players found");
         }
 
         // Set the game state
@@ -137,7 +135,7 @@ public class Referee : MonoBehaviour
             currentState[1] = p1Right;
             currentState[2] = p2Left;
             currentState[3] = p2Right;
-            Debug.Log("turn: " + numTurnsTaken + ", Previous state: " + prevState[0] + " " + prevState[1] + " " + prevState[2] + " " + prevState[3] + ", Player" + playerNum + " response: " + p1Left + " " + p1Right + " " + p2Left + " " + p2Right + ", moveID: " + moveID + ", move: " + GetMoveLabel(moveID));
+            // Debug.Log("turn: " + numTurnsTaken + ", Previous state: " + prevState[0] + " " + prevState[1] + " " + prevState[2] + " " + prevState[3] + ", Player" + playerNum + " response: " + p1Left + " " + p1Right + " " + p2Left + " " + p2Right + ", moveID: " + moveID + ", move: " + GetMoveLabel(moveID));
 
             Player1TurnResponse(p1Left, p1Right, p2Left, p2Right);
         }
@@ -148,13 +146,13 @@ public class Referee : MonoBehaviour
             currentState[1] = p2Right;
             currentState[2] = p1Left;
             currentState[3] = p1Right;
-            Debug.Log("turn: " + numTurnsTaken + ", Previous state: " + prevState[0] + " " + prevState[1] + " " + prevState[2] + " " + prevState[3] + ", Player" + playerNum + " response: " + p2Left + " " + p2Right + " " + p1Left + " " + p1Right + ", moveID: " + moveID + ", move: " + GetMoveLabel(moveID));
+            // Debug.Log("turn: " + numTurnsTaken + ", Previous state: " + prevState[0] + " " + prevState[1] + " " + prevState[2] + " " + prevState[3] + ", Player" + playerNum + " response: " + p2Left + " " + p2Right + " " + p1Left + " " + p1Right + ", moveID: " + moveID + ", move: " + GetMoveLabel(moveID));
 
             Player2TurnResponse(p2Left, p2Right, p1Left, p1Right);
         }
         else
         {
-            Debug.Log("Invalid player number");
+            // Debug.Log("Invalid player number");
         }
 
         // Update the previous state label
@@ -188,7 +186,7 @@ public class Referee : MonoBehaviour
         if (IsGameOver(p1Left, p1Right, p2Left, p2Right))
         {
 
-            Debug.Log("Game over");
+            // Debug.Log("Game over");
             return;
         }
 
@@ -205,11 +203,11 @@ public class Referee : MonoBehaviour
         // Check if a opponent hand was killed
         if (p2Left == 0)
         {
-            player1.AddReward(0.03f);
+            player1.AddReward(0.02f);
         }
         if (p2Right == 0)
         {
-            player1.AddReward(0.03f);
+            player1.AddReward(0.02f);
         }
 
         // Change player turn
@@ -237,7 +235,7 @@ public class Referee : MonoBehaviour
         // Update the game state
         if (IsGameOver(p2Left, p2Right, p1Left, p1Right))
         {
-            Debug.Log("Game over");
+            // Debug.Log("Game over");
             return;
         }
 
@@ -254,11 +252,11 @@ public class Referee : MonoBehaviour
         // Check if a opponent hand was killed
         if (p1Left == 0)
         {
-            player2.AddReward(0.03f);
+            player2.AddReward(0.02f);
         }
         if (p1Right == 0)
         {
-            player2.AddReward(0.03f);
+            player2.AddReward(0.02f);
         }
 
         // Change player turn
@@ -300,14 +298,9 @@ public class Referee : MonoBehaviour
         if (gameState == "playing" && !waitingforPlayerResponse)
         {
             numTurnsTaken++;
-            prevTurnsTakenCheckpoint++;
 
-            if (prevTurnsTakenCheckpoint >= 10)
-            {
-                prevTurnsTakenCheckpoint = 0;
-                player1.AddReward(-0.001f);
-                player2.AddReward(-0.001f);
-            }
+            player1.AddReward(-0.0001f);
+            player2.AddReward(-0.0001f);
 
             currentTurnNumLabel.text = "Turn: " + numTurnsTaken;
 
@@ -334,7 +327,6 @@ public class Referee : MonoBehaviour
                 gameIteration++;
                 gameIterationLabel.text = "Game: " + gameIteration;
 
-                prevTurnsTakenCheckpoint = 0;
                 numTurnsTaken = 0;
                 currentTurnNumLabel.text = "Turn: " + numTurnsTaken;
 

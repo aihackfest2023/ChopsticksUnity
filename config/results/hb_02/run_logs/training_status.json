@@ -1,0 +1,65 @@
+{
+    "ChopstickPlayer": {
+        "checkpoints": [
+            {
+                "steps": 1499961,
+                "file_path": "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-1499961.onnx",
+                "reward": 0.33266251301392913,
+                "creation_time": 1683998669.5920796,
+                "auxillary_file_paths": [
+                    "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-1499961.pt"
+                ]
+            },
+            {
+                "steps": 1999974,
+                "file_path": "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-1999974.onnx",
+                "reward": 0.366294692033494,
+                "creation_time": 1683999537.8412232,
+                "auxillary_file_paths": [
+                    "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-1999974.pt"
+                ]
+            },
+            {
+                "steps": 2092758,
+                "file_path": "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-2092758.onnx",
+                "reward": null,
+                "creation_time": 1683999694.1580265,
+                "auxillary_file_paths": [
+                    "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-2092758.pt"
+                ]
+            },
+            {
+                "steps": 2499994,
+                "file_path": "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-2499994.onnx",
+                "reward": 0.36179501762214517,
+                "creation_time": 1684000359.8932722,
+                "auxillary_file_paths": [
+                    "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-2499994.pt"
+                ]
+            },
+            {
+                "steps": 2548474,
+                "file_path": "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-2548474.onnx",
+                "reward": 0.3704833438619971,
+                "creation_time": 1684000512.681192,
+                "auxillary_file_paths": [
+                    "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-2548474.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 2548474,
+            "file_path": "results\\hb_02\\ChopstickPlayer.onnx",
+            "reward": 0.3704833438619971,
+            "creation_time": 1684000512.681192,
+            "auxillary_file_paths": [
+                "results\\hb_02\\ChopstickPlayer\\ChopstickPlayer-2548474.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.28.0",
+        "torch_version": "1.7.1+cu110"
+    }
+}

@@ -52,7 +52,7 @@ public class PlayerAgent : Agent
 
         if (leftLabel == null || rightLabel == null)
         {
-            Debug.LogError("Could not find left or right label");
+            // Debug.LogError("Could not find left or right label");
         }
         else
         {
@@ -63,8 +63,8 @@ public class PlayerAgent : Agent
 
         // TODO: Remove this later
         // Test getting the other player's numbers
-        Debug.Log("Other player left num: " + otherPlayer.GetLeftNum());
-        Debug.Log("Other player right num: " + otherPlayer.GetRightNum());
+        // Debug.Log("Other player left num: " + otherPlayer.GetLeftNum());
+        // Debug.Log("Other player right num: " + otherPlayer.GetRightNum());
 
         if (otherPlayer != null && leftLabel != null && rightLabel != null && referee != null)
         {
@@ -72,7 +72,7 @@ public class PlayerAgent : Agent
         }
         else
         {
-            Debug.LogError("Could not find other player, left label, right label, or referee");
+            // Debug.LogError("Could not find other player, left label, right label, or referee");
         }
 
     }
@@ -240,7 +240,7 @@ public class PlayerAgent : Agent
 
         if (!foundOtherObjects)
         {
-            Debug.LogError("Could not find other objects");
+            // Debug.LogError("Could not find other objects");
             sensor.AddObservation(new float[4]);
             return;
         }
@@ -267,7 +267,7 @@ public class PlayerAgent : Agent
     public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
     {
 
-        Debug.Log("Writing action mask for player " + playerNum);
+        // Debug.Log("Writing action mask for player " + playerNum);
         // base.WriteDiscreteActionMask(actionMask);
 
         // Format: actionMask.SetActionEnabled(branch, actionIndex, isEnabled);
