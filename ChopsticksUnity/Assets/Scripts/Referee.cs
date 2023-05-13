@@ -29,9 +29,16 @@ public class Referee : MonoBehaviour
     [Tooltip("Turn number label")]
     public TextMeshProUGUI currentTurnNumLabel;
 
+    [Tooltip("Game iteration label")]
+    public TextMeshProUGUI gameIterationLabel;
+
+    private int gameIteration = 0;
 
     private int numTurnsTaken = 0;
     private int prevTurnsTakenCheckpoint = 0;
+
+    public bool player1Ready = true;
+    public bool player2Ready = true;
 
 
     private int[] prevState = new int[4];
@@ -62,6 +69,9 @@ public class Referee : MonoBehaviour
         // Set the game state
         gameState = "playing";
         gameStateLabel.text = "Playing";
+
+        player1Ready = false;
+        player2Ready = false;
     }
 
     private string GetMoveLabel(int moveID)
@@ -159,9 +169,25 @@ public class Referee : MonoBehaviour
     // Player 1 returns a new game state as an action
     public void Player1TurnResponse(int p1Left, int p1Right, int p2Left, int p2Right)
     {
+
+        // Update the game state for player 1
+        player1.leftNum = p1Left;
+        player1.rightNum = p1Right;
+
+        player1.leftLabel.text = p1Left.ToString();
+        player1.rightLabel.text = p1Right.ToString();
+
+        // Update the game state for player 2
+        player2.leftNum = p2Left;
+        player2.rightNum = p2Right;
+
+        player2.leftLabel.text = p2Left.ToString();
+        player2.rightLabel.text = p2Right.ToString();
+
         // Update the game state
         if (IsGameOver(p1Left, p1Right, p2Left, p2Right))
         {
+
             Debug.Log("Game over");
             return;
         }
@@ -186,6 +212,14 @@ public class Referee : MonoBehaviour
             player1.AddReward(0.03f);
         }
 
+        // Change player turn
+        currentPlayerTurn = 2;
+
+    }
+
+    // Player 2 returns a new game state as an action
+    public void Player2TurnResponse(int p1Left, int p1Right, int p2Left, int p2Right)
+    {
         // Update the game state for player 1
         player1.leftNum = p1Left;
         player1.rightNum = p1Right;
@@ -200,14 +234,6 @@ public class Referee : MonoBehaviour
         player2.leftLabel.text = p2Left.ToString();
         player2.rightLabel.text = p2Right.ToString();
 
-        // Change player turn
-        currentPlayerTurn = 2;
-
-    }
-
-    // Player 2 returns a new game state as an action
-    public void Player2TurnResponse(int p1Left, int p1Right, int p2Left, int p2Right)
-    {
         // Update the game state
         if (IsGameOver(p2Left, p2Right, p1Left, p1Right))
         {
@@ -235,20 +261,6 @@ public class Referee : MonoBehaviour
             player2.AddReward(0.03f);
         }
 
-        // Update the game state for player 1
-        player1.leftNum = p1Left;
-        player1.rightNum = p1Right;
-
-        player1.leftLabel.text = p1Left.ToString();
-        player1.rightLabel.text = p1Right.ToString();
-
-        // Update the game state for player 2
-        player2.leftNum = p2Left;
-        player2.rightNum = p2Right;
-
-        player2.leftLabel.text = p2Left.ToString();
-        player2.rightLabel.text = p2Right.ToString();
-
         // Change player turn
         currentPlayerTurn = 1;
     }
@@ -258,12 +270,14 @@ public class Referee : MonoBehaviour
         if (p1Left == 0 && p1Right == 0)
         {
             gameState = "player2Win";
+            gameStateLabel.text = "Player 2 wins!";
             player1.AddReward(-1f);
             player2.AddReward(1f);
         }
         else if (p2Left == 0 && p2Right == 0)
         {
             gameState = "player1Win";
+            gameStateLabel.text = "Player 1 wins!";
             player2.AddReward(-1f);
             player1.AddReward(1f);
         }
@@ -272,6 +286,7 @@ public class Referee : MonoBehaviour
         {
             player1.EndEpisode();
             player2.EndEpisode();
+
             return true;
         }
         else
@@ -294,7 +309,7 @@ public class Referee : MonoBehaviour
                 player2.AddReward(-0.001f);
             }
 
-            currentTurnNumLabel.text = "Turn number: " + numTurnsTaken;
+            currentTurnNumLabel.text = "Turn: " + numTurnsTaken;
 
             if (currentPlayerTurn == 1)
             {
@@ -303,6 +318,38 @@ public class Referee : MonoBehaviour
             else
             {
                 CallPlayer2();
+            }
+        }
+        else
+        {
+            if (player1Ready && player2Ready)
+            {
+                // Reset the game state
+                for (int i = 0; i < 4; i++)
+                {
+                    prevState[i] = 1;
+                    currentState[i] = 1;
+                }
+
+                gameIteration++;
+                gameIterationLabel.text = "Game: " + gameIteration;
+
+                prevTurnsTakenCheckpoint = 0;
+                numTurnsTaken = 0;
+                currentTurnNumLabel.text = "Turn: " + numTurnsTaken;
+
+                waitingforPlayerResponse = false;
+
+                currentPlayerTurn = 1;
+
+                prevStateLabel.text = "Previous state: \n" + prevState[0] + " " + prevState[1] + " " + prevState[2] + " " + prevState[3];
+                currentStateLabel.text = "Current state: \n" + currentState[0] + " " + currentState[1] + " " + currentState[2] + " " + currentState[3];
+
+                // Start the game
+                gameState = "playing";
+                gameStateLabel.text = "Playing";
+                player1Ready = false;
+                player2Ready = false;
             }
         }
     }

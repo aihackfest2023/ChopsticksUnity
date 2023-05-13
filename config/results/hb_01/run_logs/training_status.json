@@ -1,0 +1,29 @@
+{
+    "ChopstickPlayer": {
+        "checkpoints": [
+            {
+                "steps": 44143,
+                "file_path": "results\\hb_01\\ChopstickPlayer\\ChopstickPlayer-44143.onnx",
+                "reward": 0.06296890850511858,
+                "creation_time": 1683994367.211696,
+                "auxillary_file_paths": [
+                    "results\\hb_01\\ChopstickPlayer\\ChopstickPlayer-44143.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 44143,
+            "file_path": "results\\hb_01\\ChopstickPlayer.onnx",
+            "reward": 0.06296890850511858,
+            "creation_time": 1683994367.211696,
+            "auxillary_file_paths": [
+                "results\\hb_01\\ChopstickPlayer\\ChopstickPlayer-44143.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.28.0",
+        "torch_version": "1.7.1+cu110"
+    }
+}

@@ -87,6 +87,19 @@ public class PlayerAgent : Agent
         // Reset the left and right hand numbers to 1
         leftNum = 1;
         rightNum = 1;
+
+        // Set the labels to the initial values
+        leftLabel.text = leftNum.ToString();
+        rightLabel.text = rightNum.ToString();
+
+        // Call the referee to reset the game
+        if (playerNum == 1)
+        {
+            referee.player1Ready = true;
+        } else
+        {
+            referee.player2Ready = true;
+        }
     }
 
     /// <summary>
@@ -312,6 +325,10 @@ public class PlayerAgent : Agent
                 actionsEnabledArr[1] = false;
                 // actionMask.SetActionEnabled(0, 1, false);
             }
+            if (rightNum == 0) {
+                // Can't attack right self
+                actionsEnabledArr[10] = false;
+            }
         }
 
         if (rightNum == 0)
@@ -347,6 +364,10 @@ public class PlayerAgent : Agent
                 // Can't attack right hand
                 actionsEnabledArr[3] = false;
                 // actionMask.SetActionEnabled(0, 3, false);
+            }
+            if (leftNum == 0) {
+                // Can't attack left self
+                actionsEnabledArr[11] = false;
             }
         }
 
