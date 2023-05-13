@@ -18,19 +18,20 @@ public class Referee : MonoBehaviour
     [Tooltip("Game state label")]
     public TextMeshProUGUI gameStateLabel;
 
-    
+
     [Tooltip("Game state label")]
     public TextMeshProUGUI prevStateLabel;
 
-    
+
     [Tooltip("Game state label")]
     public TextMeshProUGUI currentStateLabel;
 
     [Tooltip("Turn number label")]
     public TextMeshProUGUI currentTurnNumLabel;
-    
+
 
     private int numTurnsTaken = 0;
+    private int prevTurnsTakenCheckpoint = 0;
 
 
     private int[] prevState = new int[4];
@@ -47,10 +48,11 @@ public class Referee : MonoBehaviour
     void Start()
     {
 
-        prevState[0] = 1;
-        prevState[1] = 1;
-        prevState[2] = 1;
-        prevState[3] = 1;
+        for (int i = 0; i < 4; i++)
+        {
+            prevState[i] = 1;
+            currentState[i] = 1;
+        }
 
         if (!(player1 == null || player2 == null))
         {
@@ -60,6 +62,40 @@ public class Referee : MonoBehaviour
         // Set the game state
         gameState = "playing";
         gameStateLabel.text = "Playing";
+    }
+
+    private string GetMoveLabel(int moveID)
+    {
+        // switch case
+        switch (moveID)
+        {
+            case 0:
+                return "'attack 1L-2L'";
+            case 1:
+                return "'attack 1L-2R'";
+            case 2:
+                return "'attack 1R-2L'";
+            case 3:
+                return "'attack 1R-2R'";
+            case 4:
+                return "'split 1 from L-R'";
+            case 5:
+                return "'split 2 from L-R'";
+            case 6:
+                return "'split 3 from L-R'";
+            case 7:
+                return "'split 1 from R-L'";
+            case 8:
+                return "'split 2 from R-L'";
+            case 9:
+                return "'split 3 from R-L'";
+            case 10:
+                return "'selfAdd 1L-1R'";
+            case 11:
+                return "'selfAdd 1R-1L'";
+            default:
+                return "Invalid move";
+        }
     }
 
     private void CallPlayer1()
@@ -78,26 +114,32 @@ public class Referee : MonoBehaviour
 
     public void PlayerResponse(int p1Left, int p1Right, int p2Left, int p2Right, int playerNum, int moveID)
     {
-        Debug.Log("Player" + playerNum + " response: " + p1Left + " " + p1Right + " " + p2Left + " " + p2Right);
-
         // Update the previous state
         for (int i = 0; i < 4; i++)
         {
             prevState[i] = currentState[i];
         }
 
-        // Update the current state
-        currentState[0] = p1Left;
-        currentState[1] = p1Right;
-        currentState[2] = p2Left;
-        currentState[3] = p2Right;
-
         if (playerNum == 1)
         {
+            // Update the current state
+            currentState[0] = p1Left;
+            currentState[1] = p1Right;
+            currentState[2] = p2Left;
+            currentState[3] = p2Right;
+            Debug.Log("turn: " + numTurnsTaken + ", Previous state: " + prevState[0] + " " + prevState[1] + " " + prevState[2] + " " + prevState[3] + ", Player" + playerNum + " response: " + p1Left + " " + p1Right + " " + p2Left + " " + p2Right + ", moveID: " + moveID + ", move: " + GetMoveLabel(moveID));
+
             Player1TurnResponse(p1Left, p1Right, p2Left, p2Right);
         }
         else if (playerNum == 2)
         {
+            // Update the current state
+            currentState[0] = p2Left;
+            currentState[1] = p2Right;
+            currentState[2] = p1Left;
+            currentState[3] = p1Right;
+            Debug.Log("turn: " + numTurnsTaken + ", Previous state: " + prevState[0] + " " + prevState[1] + " " + prevState[2] + " " + prevState[3] + ", Player" + playerNum + " response: " + p2Left + " " + p2Right + " " + p1Left + " " + p1Right + ", moveID: " + moveID + ", move: " + GetMoveLabel(moveID));
+
             Player2TurnResponse(p2Left, p2Right, p1Left, p1Right);
         }
         else
@@ -148,20 +190,23 @@ public class Referee : MonoBehaviour
         player1.leftNum = p1Left;
         player1.rightNum = p1Right;
 
+        player1.leftLabel.text = p1Left.ToString();
+        player1.rightLabel.text = p1Right.ToString();
+
         // Update the game state for player 2
         player2.leftNum = p2Left;
         player2.rightNum = p2Right;
 
+        player2.leftLabel.text = p2Left.ToString();
+        player2.rightLabel.text = p2Right.ToString();
+
         // Change player turn
         currentPlayerTurn = 2;
-
-        // Call player 2
-        CallPlayer2();
 
     }
 
     // Player 2 returns a new game state as an action
-    public void Player2TurnResponse(int p2Left, int p2Right, int p1Left, int p1Right)
+    public void Player2TurnResponse(int p1Left, int p1Right, int p2Left, int p2Right)
     {
         // Update the game state
         if (IsGameOver(p2Left, p2Right, p1Left, p1Right))
@@ -194,16 +239,18 @@ public class Referee : MonoBehaviour
         player1.leftNum = p1Left;
         player1.rightNum = p1Right;
 
+        player1.leftLabel.text = p1Left.ToString();
+        player1.rightLabel.text = p1Right.ToString();
+
         // Update the game state for player 2
         player2.leftNum = p2Left;
         player2.rightNum = p2Right;
 
+        player2.leftLabel.text = p2Left.ToString();
+        player2.rightLabel.text = p2Right.ToString();
+
         // Change player turn
         currentPlayerTurn = 1;
-
-        // Call player 2
-        CallPlayer2();
-
     }
 
     public bool IsGameOver(int p1Left, int p1Right, int p2Left, int p2Right)
@@ -238,6 +285,14 @@ public class Referee : MonoBehaviour
         if (gameState == "playing" && !waitingforPlayerResponse)
         {
             numTurnsTaken++;
+            prevTurnsTakenCheckpoint++;
+
+            if (prevTurnsTakenCheckpoint >= 10)
+            {
+                prevTurnsTakenCheckpoint = 0;
+                player1.AddReward(-0.001f);
+                player2.AddReward(-0.001f);
+            }
 
             currentTurnNumLabel.text = "Turn number: " + numTurnsTaken;
 
@@ -245,7 +300,7 @@ public class Referee : MonoBehaviour
             {
                 CallPlayer1();
             }
-            else 
+            else
             {
                 CallPlayer2();
             }

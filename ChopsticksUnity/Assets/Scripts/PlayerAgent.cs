@@ -140,7 +140,7 @@ public class PlayerAgent : Agent
                 {
                     updatedOtherLeft = 0;
                 }
-                referee.PlayerResponse(rightNum, leftNum, updatedOtherLeft, otherPlayer.GetRightNum(), playerNum, 2);
+                referee.PlayerResponse(leftNum, rightNum, updatedOtherLeft, otherPlayer.GetRightNum(), playerNum, 2);
             }
             else if (vectorAction[0] == 3)
             {
@@ -149,7 +149,7 @@ public class PlayerAgent : Agent
                 {
                     updatedOtherRight = 0;
                 }
-                referee.PlayerResponse(rightNum, leftNum, otherPlayer.GetLeftNum(), updatedOtherRight, playerNum, 3);
+                referee.PlayerResponse(leftNum, rightNum, otherPlayer.GetLeftNum(), updatedOtherRight, playerNum, 3);
             }
 
         }
@@ -253,6 +253,8 @@ public class PlayerAgent : Agent
     /// <param name="actionMask">The action mask</param>
     public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
     {
+
+        Debug.Log("Writing action mask for player " + playerNum);
         // base.WriteDiscreteActionMask(actionMask);
 
         // Format: actionMask.SetActionEnabled(branch, actionIndex, isEnabled);
@@ -356,7 +358,8 @@ public class PlayerAgent : Agent
             // Can't split L-R 1
             actionsEnabledArr[4] = false;
             // actionMask.SetActionEnabled(0, 4, false);
-        } else if (leftNum - 1 <= 0 && rightNum + 1 >= 5)
+        }
+        else if (leftNum - 1 <= 0 || rightNum + 1 >= 5)
         {
             // Can't split L-R 1
             actionsEnabledArr[4] = false;
@@ -369,7 +372,7 @@ public class PlayerAgent : Agent
             actionsEnabledArr[5] = false;
             // actionMask.SetActionEnabled(0, 5, false);
         }
-        else if (leftNum - 2 <= 0 && rightNum + 2 >= 5)
+        else if (leftNum - 2 <= 0 || rightNum + 2 >= 5)
         {
             // Can't split L-R 2
             actionsEnabledArr[5] = false;
@@ -382,7 +385,7 @@ public class PlayerAgent : Agent
             actionsEnabledArr[6] = false;
             // actionMask.SetActionEnabled(0, 6, false);
         }
-        else if (leftNum - 3 <= 0 && rightNum + 3 >= 5)
+        else if (leftNum - 3 <= 0 || rightNum + 3 >= 5)
         {
             // Can't split L-R 3
             actionsEnabledArr[6] = false;
@@ -396,7 +399,7 @@ public class PlayerAgent : Agent
             actionsEnabledArr[7] = false;
             // actionMask.SetActionEnabled(0, 7, false);
         }
-        else if (rightNum - 1 <= 0 && leftNum + 1 >= 5)
+        else if (rightNum - 1 <= 0 || leftNum + 1 >= 5)
         {
             // Can't split R-L 1
             actionsEnabledArr[7] = false;
@@ -409,7 +412,7 @@ public class PlayerAgent : Agent
             actionsEnabledArr[8] = false;
             // actionMask.SetActionEnabled(0, 8, false);
         }
-        else if (rightNum - 2 <= 0 && leftNum + 2 >= 5)
+        else if (rightNum - 2 <= 0 || leftNum + 2 >= 5)
         {
             // Can't split R-L 2
             actionsEnabledArr[8] = false;
@@ -422,7 +425,7 @@ public class PlayerAgent : Agent
             actionsEnabledArr[9] = false;
             // actionMask.SetActionEnabled(0, 9, false);
         }
-        else if (rightNum - 3 <= 0 && leftNum + 3 >= 5)
+        else if (rightNum - 3 <= 0 || leftNum + 3 >= 5)
         {
             // Can't split R-L 3
             actionsEnabledArr[9] = false;
