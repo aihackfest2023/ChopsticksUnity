@@ -1,5 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+
+using UnityEngine.UI;
+using TMPro;
+
 using UnityEngine;
 
 public class Referee : MonoBehaviour
@@ -11,68 +15,83 @@ public class Referee : MonoBehaviour
     [SerializeField]
     public string gameState = "idle";
 
+    [Tooltip("Game state label")]
+    public TextMeshProUGUI gameStateLabel;
+
+    
+    [Tooltip("Game state label")]
+    public TextMeshProUGUI prevStateLabel;
+
+    
+    [Tooltip("Game state label")]
+    public TextMeshProUGUI currentStateLabel;
+
+    [Tooltip("Turn number label")]
+    public TextMeshProUGUI currentTurnNumLabel;
+    
+
+    private int numTurnsTaken = 0;
+
+
+    private int[] prevState = new int[4];
+    private int[] currentState = new int[4];
+
+
     // Reference to the players
     public PlayerAgent player1;
     public PlayerAgent player2;
 
+    private bool waitingforPlayerResponse = false;
+
     // Start is called before the first frame update
     void Start()
     {
-        // Find player 1 and 2
-        PlayerAgent[] playersInGameArena = null;
 
-        playersInGameArena = transform.GetComponentsInChildren<PlayerAgent>();
+        prevState[0] = 1;
+        prevState[1] = 1;
+        prevState[2] = 1;
+        prevState[3] = 1;
 
-        // if len not 2 search again
-        if (playersInGameArena.Length != 2)
-        {
-            playersInGameArena = null;
-        }
-
-        foreach (PlayerAgent player in playersInGameArena)
-        {
-            if (player.playerNum == 1)
-            {
-                player1 = player;
-            }
-            else if (player.playerNum == 2)
-            {
-                player2 = player;
-            }
-        }
-
-
-        if (player1 == null || player2 == null)
-        {
-            playersInGameArena = null;
-        }
-        else
+        if (!(player1 == null || player2 == null))
         {
             Debug.Log("Players found");
         }
 
-
-
         // Set the game state
         gameState = "playing";
-
-        // Call player 1
-        CallPlayer1();
-
+        gameStateLabel.text = "Playing";
     }
 
     private void CallPlayer1()
     {
+        gameStateLabel.text = "Player 1 turn";
+        waitingforPlayerResponse = true;
         player1.RequestDecision();
     }
 
     private void CallPlayer2()
     {
+        gameStateLabel.text = "Player 2 turn";
+        waitingforPlayerResponse = true;
         player2.RequestDecision();
     }
 
-    public void PlayerResponse(int p1Left, int p1Right, int p2Left, int p2Right, int playerNum)
+    public void PlayerResponse(int p1Left, int p1Right, int p2Left, int p2Right, int playerNum, int moveID)
     {
+        Debug.Log("Player" + playerNum + " response: " + p1Left + " " + p1Right + " " + p2Left + " " + p2Right);
+
+        // Update the previous state
+        for (int i = 0; i < 4; i++)
+        {
+            prevState[i] = currentState[i];
+        }
+
+        // Update the current state
+        currentState[0] = p1Left;
+        currentState[1] = p1Right;
+        currentState[2] = p2Left;
+        currentState[3] = p2Right;
+
         if (playerNum == 1)
         {
             Player1TurnResponse(p1Left, p1Right, p2Left, p2Right);
@@ -81,6 +100,18 @@ public class Referee : MonoBehaviour
         {
             Player2TurnResponse(p2Left, p2Right, p1Left, p1Right);
         }
+        else
+        {
+            Debug.Log("Invalid player number");
+        }
+
+        // Update the previous state label
+        prevStateLabel.text = "Previous state: \n" + prevState[0] + " " + prevState[1] + " " + prevState[2] + " " + prevState[3];
+
+        // Update the current state label
+        currentStateLabel.text = "Current state: \n" + currentState[0] + " " + currentState[1] + " " + currentState[2] + " " + currentState[3];
+
+        waitingforPlayerResponse = false;
     }
 
     // Player 1 returns a new game state as an action
@@ -112,7 +143,6 @@ public class Referee : MonoBehaviour
         {
             player1.AddReward(0.03f);
         }
-
 
         // Update the game state for player 1
         player1.leftNum = p1Left;
@@ -193,11 +223,32 @@ public class Referee : MonoBehaviour
 
         if (gameState == "player1Win" || gameState == "player2Win")
         {
+            player1.EndEpisode();
+            player2.EndEpisode();
             return true;
         }
         else
         {
             return false;
+        }
+    }
+
+    public void Update()
+    {
+        if (gameState == "playing" && !waitingforPlayerResponse)
+        {
+            numTurnsTaken++;
+
+            currentTurnNumLabel.text = "Turn number: " + numTurnsTaken;
+
+            if (currentPlayerTurn == 1)
+            {
+                CallPlayer1();
+            }
+            else 
+            {
+                CallPlayer2();
+            }
         }
     }
 

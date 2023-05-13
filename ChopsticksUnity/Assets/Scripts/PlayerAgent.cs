@@ -46,20 +46,6 @@ public class PlayerAgent : Agent
     {
         // base.Initialize();
 
-        // Get the child canvas
-        Transform canvas = transform.Find("Canvas");
-        if (canvas == null)
-        {
-            Debug.LogError("Could not find canvas");
-        }
-        else
-        {
-            // Get the child text objects
-            leftLabel = canvas.Find("LeftHandNum").GetComponent<TextMeshProUGUI>();
-            rightLabel = canvas.Find("RightHandNum").GetComponent<TextMeshProUGUI>();
-
-        }
-
         // Set the initial values 
         leftNum = 1;
         rightNum = 1;
@@ -73,29 +59,6 @@ public class PlayerAgent : Agent
             // Set the labels to the initial values
             leftLabel.text = leftNum.ToString();
             rightLabel.text = rightNum.ToString();
-        }
-
-        // Get the other player from within the parent game object, not itself
-        PlayerAgent[] playersInGameArena = transform.parent.GetComponentsInChildren<PlayerAgent>();
-        foreach (PlayerAgent player in playersInGameArena)
-        {
-            if (player != this)
-            {
-                otherPlayer = player;
-                break;
-            }
-        }
-
-        if (otherPlayer == null)
-        {
-            Debug.LogError("Could not find other player");
-        }
-
-        // Get the referee
-        referee = transform.parent.GetComponent<Referee>();
-        if (referee == null)
-        {
-            Debug.LogError("Could not find referee");
         }
 
         // TODO: Remove this later
@@ -153,19 +116,40 @@ public class PlayerAgent : Agent
 
             if (vectorAction[0] == 0)
             {
-                referee.PlayerResponse(leftNum, rightNum, otherPlayer.GetLeftNum() + leftNum, otherPlayer.GetRightNum(), playerNum);
+                int updatedOtherLeft = otherPlayer.GetLeftNum() + leftNum;
+                if (updatedOtherLeft >= 5)
+                {
+                    updatedOtherLeft = 0;
+                }
+
+                referee.PlayerResponse(leftNum, rightNum, updatedOtherLeft, otherPlayer.GetRightNum(), playerNum, 0);
             }
             else if (vectorAction[0] == 1)
             {
-                referee.PlayerResponse(leftNum, rightNum, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum() + leftNum, playerNum);
+                int updatedOtherRight = otherPlayer.GetRightNum() + leftNum;
+                if (updatedOtherRight >= 5)
+                {
+                    updatedOtherRight = 0;
+                }
+                referee.PlayerResponse(leftNum, rightNum, otherPlayer.GetLeftNum(), updatedOtherRight, playerNum, 1);
             }
             else if (vectorAction[0] == 2)
             {
-                referee.PlayerResponse(rightNum, leftNum, otherPlayer.GetLeftNum() + rightNum, otherPlayer.GetRightNum(), playerNum);
+                int updatedOtherLeft = otherPlayer.GetLeftNum() + rightNum;
+                if (updatedOtherLeft >= 5)
+                {
+                    updatedOtherLeft = 0;
+                }
+                referee.PlayerResponse(rightNum, leftNum, updatedOtherLeft, otherPlayer.GetRightNum(), playerNum, 2);
             }
             else if (vectorAction[0] == 3)
             {
-                referee.PlayerResponse(rightNum, leftNum, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum() + rightNum, playerNum);
+                int updatedOtherRight = otherPlayer.GetRightNum() + rightNum;
+                if (updatedOtherRight >= 5)
+                {
+                    updatedOtherRight = 0;
+                }
+                referee.PlayerResponse(rightNum, leftNum, otherPlayer.GetLeftNum(), updatedOtherRight, playerNum, 3);
             }
 
         }
@@ -179,27 +163,27 @@ public class PlayerAgent : Agent
 
             if (vectorAction[0] == 4)
             {
-                referee.PlayerResponse(leftNum - 1, rightNum + 1, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum);
+                referee.PlayerResponse(leftNum - 1, rightNum + 1, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum, 4);
             }
             else if (vectorAction[0] == 5)
             {
-                referee.PlayerResponse(leftNum - 2, rightNum + 2, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum);
+                referee.PlayerResponse(leftNum - 2, rightNum + 2, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum, 5);
             }
             else if (vectorAction[0] == 6)
             {
-                referee.PlayerResponse(leftNum - 3, rightNum + 3, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum);
+                referee.PlayerResponse(leftNum - 3, rightNum + 3, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum, 6);
             }
             else if (vectorAction[0] == 7)
             {
-                referee.PlayerResponse(leftNum + 1, rightNum - 1, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum);
+                referee.PlayerResponse(leftNum + 1, rightNum - 1, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum, 7);
             }
             else if (vectorAction[0] == 8)
             {
-                referee.PlayerResponse(leftNum + 2, rightNum - 2, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum);
+                referee.PlayerResponse(leftNum + 2, rightNum - 2, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum, 8);
             }
             else if (vectorAction[0] == 9)
             {
-                referee.PlayerResponse(leftNum + 3, rightNum - 3, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum);
+                referee.PlayerResponse(leftNum + 3, rightNum - 3, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum, 9);
             }
         }
 
@@ -212,11 +196,21 @@ public class PlayerAgent : Agent
 
             if (vectorAction[0] == 10)
             {
-                referee.PlayerResponse(leftNum, rightNum + leftNum, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum);
+                int updatedRight = leftNum + rightNum;
+                if (updatedRight >= 5)
+                {
+                    updatedRight = 0;
+                }
+                referee.PlayerResponse(leftNum, updatedRight, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum, 10);
             }
             else if (vectorAction[0] == 11)
             {
-                referee.PlayerResponse(leftNum + rightNum, rightNum, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum);
+                int updatedLeft = leftNum + rightNum;
+                if (updatedLeft >= 5)
+                {
+                    updatedLeft = 0;
+                }
+                referee.PlayerResponse(updatedLeft, rightNum, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum, 11);
             }
 
         }
@@ -263,6 +257,13 @@ public class PlayerAgent : Agent
 
         // Format: actionMask.SetActionEnabled(branch, actionIndex, isEnabled);
 
+        bool[] actionsEnabledArr = new bool[12];
+
+        for (int i = 0; i < 12; i++)
+        {
+            actionsEnabledArr[i] = true;
+        }
+
         // set all actions to enabled first
         for (int i = 0; i < 12; i++)
         {
@@ -278,96 +279,170 @@ public class PlayerAgent : Agent
         if (leftNum == 0)
         {
             // Can't attack
-            actionMask.SetActionEnabled(0, 0, false);
-            actionMask.SetActionEnabled(0, 1, false);
+            actionsEnabledArr[0] = false;
+            actionsEnabledArr[1] = false;
+            // actionMask.SetActionEnabled(0, 0, false);
+            // actionMask.SetActionEnabled(0, 1, false);
 
             // Can't split L-R
-            actionMask.SetActionEnabled(0, 4, false);
-            actionMask.SetActionEnabled(0, 5, false);
-            actionMask.SetActionEnabled(0, 6, false);
+            actionsEnabledArr[4] = false;
+            actionsEnabledArr[5] = false;
+            actionsEnabledArr[6] = false;
+            // actionMask.SetActionEnabled(0, 4, false);
+            // actionMask.SetActionEnabled(0, 5, false);
+            // actionMask.SetActionEnabled(0, 6, false);
 
             // Can't self-add 1L - 1R
-            actionMask.SetActionEnabled(0, 10, false);
+            actionsEnabledArr[10] = false;
+            // actionMask.SetActionEnabled(0, 10, false);
         }
         else
         {
             if (otherPlayer.GetLeftNum() == 0)
             {
                 // Can't attack left hand
-                actionMask.SetActionEnabled(0, 0, false);
+                actionsEnabledArr[0] = false;
+                // actionMask.SetActionEnabled(0, 0, false);
             }
             if (otherPlayer.GetRightNum() == 0)
             {
                 // Can't attack right hand
-                actionMask.SetActionEnabled(0, 1, false);
+                actionsEnabledArr[1] = false;
+                // actionMask.SetActionEnabled(0, 1, false);
             }
         }
 
         if (rightNum == 0)
         {
             // Can't attack
-            actionMask.SetActionEnabled(0, 2, false);
-            actionMask.SetActionEnabled(0, 3, false);
+            actionsEnabledArr[2] = false;
+            actionsEnabledArr[3] = false;
+            // actionMask.SetActionEnabled(0, 2, false);
+            // actionMask.SetActionEnabled(0, 3, false);
 
             // Can't split R-L
-            actionMask.SetActionEnabled(0, 7, false);
-            actionMask.SetActionEnabled(0, 8, false);
-            actionMask.SetActionEnabled(0, 9, false);
+            actionsEnabledArr[7] = false;
+            actionsEnabledArr[8] = false;
+            actionsEnabledArr[9] = false;
+            // actionMask.SetActionEnabled(0, 7, false);
+            // actionMask.SetActionEnabled(0, 8, false);
+            // actionMask.SetActionEnabled(0, 9, false);
 
             // Can't self-add 1R - 1L
-            actionMask.SetActionEnabled(0, 11, false);
+            actionsEnabledArr[11] = false;
+            // actionMask.SetActionEnabled(0, 11, false);
         }
         else
         {
             if (otherPlayer.GetLeftNum() == 0)
             {
                 // Can't attack left hand
-                actionMask.SetActionEnabled(0, 2, false);
+                actionsEnabledArr[2] = false;
+                // actionMask.SetActionEnabled(0, 2, false);
             }
             if (otherPlayer.GetRightNum() == 0)
             {
                 // Can't attack right hand
-                actionMask.SetActionEnabled(0, 3, false);
+                actionsEnabledArr[3] = false;
+                // actionMask.SetActionEnabled(0, 3, false);
             }
         }
+
+        // If the result of a split has either side as 5 or 0, it is not allowed
 
         // If the result of a split is flipped L-R values, disable it
         if (leftNum - 1 == rightNum && rightNum + 1 == leftNum)
         {
             // Can't split L-R 1
-            actionMask.SetActionEnabled(0, 4, false);
+            actionsEnabledArr[4] = false;
+            // actionMask.SetActionEnabled(0, 4, false);
+        } else if (leftNum - 1 <= 0 && rightNum + 1 >= 5)
+        {
+            // Can't split L-R 1
+            actionsEnabledArr[4] = false;
+            // actionMask.SetActionEnabled(0, 4, false);
         }
+
         if (leftNum - 2 == rightNum && rightNum + 2 == leftNum)
         {
             // Can't split L-R 2
-            actionMask.SetActionEnabled(0, 5, false);
+            actionsEnabledArr[5] = false;
+            // actionMask.SetActionEnabled(0, 5, false);
         }
+        else if (leftNum - 2 <= 0 && rightNum + 2 >= 5)
+        {
+            // Can't split L-R 2
+            actionsEnabledArr[5] = false;
+            // actionMask.SetActionEnabled(0, 5, false);
+        }
+
         if (leftNum - 3 == rightNum && rightNum + 3 == leftNum)
         {
             // Can't split L-R 3
-            actionMask.SetActionEnabled(0, 6, false);
+            actionsEnabledArr[6] = false;
+            // actionMask.SetActionEnabled(0, 6, false);
+        }
+        else if (leftNum - 3 <= 0 && rightNum + 3 >= 5)
+        {
+            // Can't split L-R 3
+            actionsEnabledArr[6] = false;
+            // actionMask.SetActionEnabled(0, 6, false);
         }
 
         // If the result of a split is flipped R-L values, disable it
         if (rightNum - 1 == leftNum && leftNum + 1 == rightNum)
         {
             // Can't split R-L 1
-            actionMask.SetActionEnabled(0, 7, false);
+            actionsEnabledArr[7] = false;
+            // actionMask.SetActionEnabled(0, 7, false);
         }
+        else if (rightNum - 1 <= 0 && leftNum + 1 >= 5)
+        {
+            // Can't split R-L 1
+            actionsEnabledArr[7] = false;
+            // actionMask.SetActionEnabled(0, 7, false);
+        }
+
         if (rightNum - 2 == leftNum && leftNum + 2 == rightNum)
         {
             // Can't split R-L 2
-            actionMask.SetActionEnabled(0, 8, false);
+            actionsEnabledArr[8] = false;
+            // actionMask.SetActionEnabled(0, 8, false);
         }
+        else if (rightNum - 2 <= 0 && leftNum + 2 >= 5)
+        {
+            // Can't split R-L 2
+            actionsEnabledArr[8] = false;
+            // actionMask.SetActionEnabled(0, 8, false);
+        }
+
         if (rightNum - 3 == leftNum && leftNum + 3 == rightNum)
         {
             // Can't split R-L 3
-            actionMask.SetActionEnabled(0, 9, false);
+            actionsEnabledArr[9] = false;
+            // actionMask.SetActionEnabled(0, 9, false);
+        }
+        else if (rightNum - 3 <= 0 && leftNum + 3 >= 5)
+        {
+            // Can't split R-L 3
+            actionsEnabledArr[9] = false;
+            // actionMask.SetActionEnabled(0, 9, false);
         }
 
+        for (int i = 0; i < 12; i++)
+        {
+            if (actionsEnabledArr[i] == false)
+            {
+                actionMask.SetActionEnabled(0, i, false);
+            }
+            else if (actionsEnabledArr[i] == true)
+            {
+                actionMask.SetActionEnabled(0, i, true);
+            }
+
+        }
 
     }
-
 
     /// <summary>
     /// When behaviour type is set to "Heuristic Only" on the agent's Behaviour Parameters,
@@ -477,5 +552,7 @@ public class PlayerAgent : Agent
     {
         return rightNum;
     }
+
+
 
 }
