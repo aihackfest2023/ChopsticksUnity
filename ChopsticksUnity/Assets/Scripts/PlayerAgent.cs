@@ -96,7 +96,8 @@ public class PlayerAgent : Agent
         if (playerNum == 1)
         {
             referee.player1Ready = true;
-        } else
+        }
+        else
         {
             referee.player2Ready = true;
         }
@@ -224,6 +225,9 @@ public class PlayerAgent : Agent
                     updatedLeft = 0;
                 }
                 referee.PlayerResponse(updatedLeft, rightNum, otherPlayer.GetLeftNum(), otherPlayer.GetRightNum(), playerNum, 11);
+            } else 
+            {
+                referee.CallPlayerAgain(playerNum);
             }
 
         }
@@ -325,7 +329,8 @@ public class PlayerAgent : Agent
                 actionsEnabledArr[1] = false;
                 // actionMask.SetActionEnabled(0, 1, false);
             }
-            if (rightNum == 0) {
+            if (rightNum == 0)
+            {
                 // Can't attack right self
                 actionsEnabledArr[10] = false;
             }
@@ -365,7 +370,8 @@ public class PlayerAgent : Agent
                 actionsEnabledArr[3] = false;
                 // actionMask.SetActionEnabled(0, 3, false);
             }
-            if (leftNum == 0) {
+            if (leftNum == 0)
+            {
                 // Can't attack left self
                 actionsEnabledArr[11] = false;
             }
@@ -481,81 +487,317 @@ public class PlayerAgent : Agent
         // Get the action buffer
         ActionSegment<int> actionsOut = actionsOutBuffer.DiscreteActions;
 
-        // user press enter first
-        while (true)
+        bool[] actionsEnabledArr = new bool[12];
+
+        for (int i = 0; i < 12; i++)
         {
-            if (Input.GetKey(KeyCode.Return))
+            actionsEnabledArr[i] = true;
+        }
+
+        // Check which actions are valid
+        // Get the other player's numbers
+        int otherLeftNum = otherPlayer.GetLeftNum();
+        int otherRightNum = otherPlayer.GetRightNum();
+
+        // Disable actions that are not possible
+        if (leftNum == 0)
+        {
+            // Can't attack
+            actionsEnabledArr[0] = false;
+            actionsEnabledArr[1] = false;
+
+            // Can't split L-R
+            actionsEnabledArr[4] = false;
+            actionsEnabledArr[5] = false;
+            actionsEnabledArr[6] = false;
+
+            // Can't self-add 1L - 1R
+            actionsEnabledArr[10] = false;
+        }
+        else
+        {
+            if (otherPlayer.GetLeftNum() == 0)
             {
-                break;
+                // Can't attack left hand
+                actionsEnabledArr[0] = false;
+            }
+            if (otherPlayer.GetRightNum() == 0)
+            {
+                // Can't attack right hand
+                actionsEnabledArr[1] = false;
+            }
+            if (rightNum == 0)
+            {
+                // Can't attack right self
+                actionsEnabledArr[10] = false;
             }
         }
 
-        // Wait for input in a while loop
-        while (true)
+        if (rightNum == 0)
         {
-            if (Input.GetKey(KeyCode.Alpha0))
+            // Can't attack
+            actionsEnabledArr[2] = false;
+            actionsEnabledArr[3] = false;
+
+            // Can't split R-L
+            actionsEnabledArr[7] = false;
+            actionsEnabledArr[8] = false;
+            actionsEnabledArr[9] = false;
+
+            // Can't self-add 1R - 1L
+            actionsEnabledArr[11] = false;
+        }
+        else
+        {
+            if (otherPlayer.GetLeftNum() == 0)
             {
-                actionsOut[0] = 0;
-                break;
+                // Can't attack left hand
+                actionsEnabledArr[2] = false;
             }
-            else if (Input.GetKey(KeyCode.Alpha1))
+            if (otherPlayer.GetRightNum() == 0)
             {
-                actionsOut[0] = 1;
-                break;
+                // Can't attack right hand
+                actionsEnabledArr[3] = false;
             }
-            else if (Input.GetKey(KeyCode.Alpha2))
+            if (leftNum == 0)
             {
-                actionsOut[0] = 2;
-                break;
-            }
-            else if (Input.GetKey(KeyCode.Alpha3))
-            {
-                actionsOut[0] = 3;
-                break;
-            }
-            else if (Input.GetKey(KeyCode.Alpha4))
-            {
-                actionsOut[0] = 4;
-                break;
-            }
-            else if (Input.GetKey(KeyCode.Alpha5))
-            {
-                actionsOut[0] = 5;
-                break;
-            }
-            else if (Input.GetKey(KeyCode.Alpha6))
-            {
-                actionsOut[0] = 6;
-                break;
-            }
-            else if (Input.GetKey(KeyCode.Alpha7))
-            {
-                actionsOut[0] = 7;
-                break;
-            }
-            else if (Input.GetKey(KeyCode.Alpha8))
-            {
-                actionsOut[0] = 8;
-                break;
-            }
-            else if (Input.GetKey(KeyCode.Alpha9))
-            {
-                actionsOut[0] = 9;
-                break;
-            }
-            else if (Input.GetKey(KeyCode.Plus))
-            {
-                actionsOut[0] = 10;
-                break;
-            }
-            else if (Input.GetKey(KeyCode.Minus))
-            {
-                actionsOut[0] = 11;
-                break;
+                // Can't attack left self
+                actionsEnabledArr[11] = false;
             }
         }
 
+        // If the result of a split has either side as 5 or 0, it is not allowed
 
+        // If the result of a split is flipped L-R values, disable it
+        if (leftNum - 1 == rightNum && rightNum + 1 == leftNum)
+        {
+            // Can't split L-R 1
+            actionsEnabledArr[4] = false;
+        }
+        else if (leftNum - 1 <= 0 || rightNum + 1 >= 5)
+        {
+            // Can't split L-R 1
+            actionsEnabledArr[4] = false;
+        }
+
+        if (leftNum - 2 == rightNum && rightNum + 2 == leftNum)
+        {
+            // Can't split L-R 2
+            actionsEnabledArr[5] = false;
+        }
+        else if (leftNum - 2 <= 0 || rightNum + 2 >= 5)
+        {
+            // Can't split L-R 2
+            actionsEnabledArr[5] = false;
+        }
+
+        if (leftNum - 3 == rightNum && rightNum + 3 == leftNum)
+        {
+            // Can't split L-R 3
+            actionsEnabledArr[6] = false;
+        }
+        else if (leftNum - 3 <= 0 || rightNum + 3 >= 5)
+        {
+            // Can't split L-R 3
+            actionsEnabledArr[6] = false;
+        }
+
+        // If the result of a split is flipped R-L values, disable it
+        if (rightNum - 1 == leftNum && leftNum + 1 == rightNum)
+        {
+            // Can't split R-L 1
+            actionsEnabledArr[7] = false;
+        }
+        else if (rightNum - 1 <= 0 || leftNum + 1 >= 5)
+        {
+            // Can't split R-L 1
+            actionsEnabledArr[7] = false;
+        }
+
+        if (rightNum - 2 == leftNum && leftNum + 2 == rightNum)
+        {
+            // Can't split R-L 2
+            actionsEnabledArr[8] = false;
+        }
+        else if (rightNum - 2 <= 0 || leftNum + 2 >= 5)
+        {
+            // Can't split R-L 2
+            actionsEnabledArr[8] = false;
+        }
+
+        if (rightNum - 3 == leftNum && leftNum + 3 == rightNum)
+        {
+            // Can't split R-L 3
+            actionsEnabledArr[9] = false;
+        }
+        else if (rightNum - 3 <= 0 || leftNum + 3 >= 5)
+        {
+            // Can't split R-L 3
+            actionsEnabledArr[9] = false;
+        }
+
+        // Debug.Log("Waiting for user to press enter");
+
+        // // user press enter first
+        // while (true)
+        // {
+        //     if (Input.GetKey(KeyCode.Return))
+        //     {
+        //         break;
+        //     }
+        // }
+
+        // Debug.Log("Waiting for user to input valid action");
+
+        //// Wait for input in a while loop
+        // while (true)
+        // {
+        //     if (Input.GetKey(KeyCode.Alpha0) && actionsEnabledArr[0])
+        //     {
+        //         actionsOut[0] = 0;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Alpha1) && actionsEnabledArr[1])
+        //     {
+        //         actionsOut[0] = 1;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Alpha2) && actionsEnabledArr[2])
+        //     {
+        //         actionsOut[0] = 2;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Alpha3) && actionsEnabledArr[3])
+        //     {
+        //         actionsOut[0] = 3;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Alpha4) && actionsEnabledArr[4])
+        //     {
+        //         actionsOut[0] = 4;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Alpha5) && actionsEnabledArr[5])
+        //     {
+        //         actionsOut[0] = 5;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Alpha6) && actionsEnabledArr[6])
+        //     {
+        //         actionsOut[0] = 6;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Alpha7) && actionsEnabledArr[7])
+        //     {
+        //         actionsOut[0] = 7;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Alpha8) && actionsEnabledArr[8])
+        //     {
+        //         actionsOut[0] = 8;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Alpha9) && actionsEnabledArr[9])
+        //     {
+        //         actionsOut[0] = 9;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Plus) && actionsEnabledArr[10])
+        //     {
+        //         actionsOut[0] = 10;
+        //         break;
+        //     }
+        //     else if (Input.GetKey(KeyCode.Minus) && actionsEnabledArr[11])
+        //     {
+        //         actionsOut[0] = 11;
+        //         break;
+        //     }
+        //     else
+        //     {
+        //         if (playerNum == 2)
+        //         {
+        //             Debug.Log("Picking random action");
+        //             for (int i = 0; i < 12; i++)
+        //             {
+        //                 if (actionsEnabledArr[i])
+        //                 {
+        //                     actionsOut[0] = i;
+        //                     break;
+        //                 }
+        //             }
+        //         }
+
+        //     }
+        // }
+
+
+        if (Input.GetKey(KeyCode.Alpha0) && actionsEnabledArr[0])
+        {
+            actionsOut[0] = 0;
+        }
+        else if (Input.GetKey(KeyCode.Alpha1) && actionsEnabledArr[1])
+        {
+            actionsOut[0] = 1;
+        }
+        else if (Input.GetKey(KeyCode.Alpha2) && actionsEnabledArr[2])
+        {
+            actionsOut[0] = 2;
+        }
+        else if (Input.GetKey(KeyCode.Alpha3) && actionsEnabledArr[3])
+        {
+            actionsOut[0] = 3;
+        }
+        else if (Input.GetKey(KeyCode.Alpha4) && actionsEnabledArr[4])
+        {
+            actionsOut[0] = 4;
+        }
+        else if (Input.GetKey(KeyCode.Alpha5) && actionsEnabledArr[5])
+        {
+            actionsOut[0] = 5;
+        }
+        else if (Input.GetKey(KeyCode.Alpha6) && actionsEnabledArr[6])
+        {
+            actionsOut[0] = 6;
+        }
+        else if (Input.GetKey(KeyCode.Alpha7) && actionsEnabledArr[7])
+        {
+            actionsOut[0] = 7;
+        }
+        else if (Input.GetKey(KeyCode.Alpha8) && actionsEnabledArr[8])
+        {
+            actionsOut[0] = 8;
+        }
+        else if (Input.GetKey(KeyCode.Alpha9) && actionsEnabledArr[9])
+        {
+            actionsOut[0] = 9;
+        }
+        else if (Input.GetKey(KeyCode.Minus) && actionsEnabledArr[10])
+        {
+            actionsOut[0] = 10;
+        }
+        else if (Input.GetKey(KeyCode.Plus) && actionsEnabledArr[11])
+        {
+            actionsOut[0] = 11;
+        }
+        else
+        {
+            if (playerNum == 2)
+            {
+                // Debug.Log("Picking random action");
+                for (int i = 0; i < 12; i++)
+                {
+                    if (actionsEnabledArr[i])
+                    {
+                        actionsOut[0] = i;
+                        break;
+                    }
+                }
+            } else
+            {
+                actionsOut[0] = 12;
+            }
+        
+        }
 
     }
 
