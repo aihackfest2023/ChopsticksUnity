@@ -34,7 +34,9 @@ This was intended to be used for the backend, with a more intuitive ui to replac
 
 ## Unity
 
-Open the Unity project folder with Unity. The project was created with Unity 20212.2.11f1.
+Open the Unity project folder with Unity. The project was created with Unity 2021.3.11f1.
+
+MLAgents Version 2.0.1 was used for the training. The MLAgents package can be installed from the package manager.
 
 ## MLAgents training
 
