@@ -36,20 +36,26 @@ class ChopsticksGame:
         self.p2left = 1
         self.p2right = 1
 
-        # The game state
+        # The game over flag
         self.gameOver = False
 
         # The player who's turn it is
         self.playerTurn = 1
 
+        # turns taken
+        self.turnsTaken = 0
+
+        # The game state
+        self.gameState = "In Progress"
+
         self.loadModel()
 
     def loadModel(self):
-        self.model = ort.InferenceSession("/ChopstickPlayer.onnx") # TODO: Check path
-        session = ort.InferenceSession("/ChopstickPlayer.onnx") # TODO: Check path
+        self.model = ort.InferenceSession("./ChopstickPlayer.onnx") # TODO: Check path
+        self.session = ort.InferenceSession("./ChopstickPlayer.onnx") # TODO: Check path
 
 
-    # GETTERS AND SETTERS
+    ## GETTERS AND SETTERS
     def getBoard(self):
         return [self.p1left, self.p1right, self.p2left, self.p2right]
     
@@ -57,6 +63,16 @@ class ChopsticksGame:
         return self.playerTurn
     
     def getGameOver(self):
+        if self.p1left == 0 and self.p1right == 0:
+            self.gameOver = True
+            self.gameState = "Player 2 wins"
+        elif self.p2left == 0 and self.p2right == 0:
+            self.gameOver = True
+            self.gameState = "Player 1 wins"
+        else:
+            self.gameOver = False
+            self.gameState = "In Progress"
+
         return self.gameOver
     
     #TODO: check this logic
@@ -68,7 +84,11 @@ class ChopsticksGame:
                 return 1
         else:
             return 0
+        
+    def getNumTurns(self):
+        return self.turnsTaken
     
+    ## GAME LOGIC
 
     # Reset the game
     def newGame(self):
@@ -78,9 +98,17 @@ class ChopsticksGame:
         self.p2left = 1
         self.p2right = 1
 
+        # The game over flag
         self.gameOver = False
 
+        # The player who's turn it is
         self.playerTurn = 1
+
+        # turns taken
+        self.turnsTaken = 0
+
+        # The game state
+        self.gameState = "New Game"
 
     def getMoveList(self):
         return MOVE_TYPES
@@ -188,12 +216,6 @@ class ChopsticksGame:
             (self.playerTurn == 2 and (self.p2right - 3 <= MIN_FINGERS or self.p2left + 3 >= MAX_FINGERS)):
             # Can't split R-L 3
             moves[9] = False
-
-        # Update player turn
-        if self.playerTurn == 1:
-            self.playerTurn = 2
-        else:
-            self.playerTurn = 1
 
         return moves
 
@@ -334,6 +356,19 @@ class ChopsticksGame:
                     updatedP2Left = MIN_FINGERS
                 self.p2left = updatedP2Left
 
+        self.turnsTaken += 1
+
+        # Update player turn
+        if self.playerTurn == 1:
+            self.playerTurn = 2
+        else:
+            self.playerTurn = 1
+
+        # Update the game state
+        if (self.getGameOver()):
+            print("Game Over")
+            
+
     # AI functions
     def getP2Move(self):
         # Not P2 turn
@@ -341,26 +376,26 @@ class ChopsticksGame:
             return 12, "Not P2 turn"
 
         # Define the input data
-        input_data = np.array([self.p1left / 4, self.p1right / 4, self.p2left / 4, self.p2right / 4])
+        input_data = np.array([[self.p1left / 4, self.p1right / 4, self.p2left / 4, self.p2right / 4]])
+        input_data = input_data.astype(np.float32)
 
         # Define the action mask
-        movesMask = self.getMovesMask()
+        movesMask = self.getLegalMoves()
+        movesMaskArr = []
         for i in range(len(movesMask)):
-            if not movesMask[i]:
-                action_mask = np.append(input_data, 0)
-            else:
-                action_mask = np.append(input_data, 1)
+            if movesMask[i]:
+                movesMaskArr.append(i)
 
-        # Make action_mask np.float32
-        action_mask = action_mask.astype(np.float32)
+        action_mask = np.ones((1, 12), dtype=np.float32)
+        action_mask[:, movesMaskArr] = 0.0 # Set invalid moves to zero
 
         # Run the model
         output = self.session.run(None, {'obs_0': input_data, 'action_masks': action_mask})
 
         # Get the output data
-        output_data = output[2]
+        output_data = output[2] # <class 'numpy.ndarray'>
 
-        return output_data, MOVE_TYPES[output_data]
+        return output_data, MOVE_TYPES[output_data[0][0]]
 
     def p2AIMove(self):
         # Get the move
