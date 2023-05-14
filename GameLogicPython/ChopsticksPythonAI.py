@@ -383,14 +383,14 @@ class ChopsticksGame:
         movesMask = self.getLegalMoves()
         movesMaskArr = []
         for i in range(0, 12):
-            if movesMask[i]:
+            if not movesMask[i]:
                 movesMaskArr.append(i)
 
         action_mask = np.ones((1, 12), dtype=np.float32)
         action_mask[:, movesMaskArr] = 0.0 # Set invalid moves to zero
 
-        print(movesMaskArr)
-        print(action_mask)
+        # print(movesMaskArr)
+        # print(action_mask)
 
         # Run the model
         output = self.session.run(None, {'obs_0': input_data, 'action_masks': action_mask})
