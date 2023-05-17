@@ -69,10 +69,13 @@ To run the test file:
 # Training
 
 ![GameScene](https://github.com/aihackfest2023/ChopsticksUnity/assets/53657436/c494ba45-527d-44a6-8da0-1869872c55dc)
+
 Individual Game set up
 
 ![Model training arenas](https://github.com/aihackfest2023/ChopsticksUnity/assets/53657436/78c77166-5cfe-492e-b456-9e0c150f92fe)
+
 Training multiple Agents simultaneously
 
 ![Model training result](https://github.com/aihackfest2023/ChopsticksUnity/assets/53657436/770cce04-a97f-4610-bc91-ab8a23b04041)
+
 Results of training with Tensorboard
